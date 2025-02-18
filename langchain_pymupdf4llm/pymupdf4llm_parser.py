@@ -6,7 +6,6 @@ import threading
 from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import (
-    TYPE_CHECKING,
     Any,
     Iterator,
     Literal,
@@ -19,8 +18,7 @@ from langchain_core.document_loaders import (
     BaseBlobParser
 )
 
-if TYPE_CHECKING:
-    import pymupdf
+import pymupdf
 
 
 _DEFAULT_PAGES_DELIMITER = "\n\f"
