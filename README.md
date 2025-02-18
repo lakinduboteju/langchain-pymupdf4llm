@@ -5,9 +5,14 @@
 
 1. Bring up development environment on Docker.
     ``` bash
+    # Build Docker image for dev env
+    bash ./docker_build_dev_env.sh
+
+    # Run dev env on Docker container
     bash ./docker_run_dev_env.sh
+
+    # Start bash session on Docker container
     docker exec -it langchain-pymupdf4llm-dev bash
-    pip install poetry
 
     # exit
     # docker stop langchain-pymupdf4llm-dev

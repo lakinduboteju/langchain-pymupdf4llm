@@ -6,4 +6,5 @@ docker run -it -d \
     -v $HOME/.aws:/root/.aws:ro \
     -w /app \
     -p 5678:5678 \
-    python:3.9-slim bash
+    langchain-pymupdf4llm-dev:latest \
+    bash
