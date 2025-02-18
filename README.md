@@ -22,3 +22,12 @@
     ``` bash
     poetry install --with dev,test
     ```
+
+3. Create example documents for tests using LaTeX.
+    ``` bash
+    apt update -y
+    apt install -y texlive
+
+    cd ./tests/examples
+    pdflatex sample_1.tex
+    ```
