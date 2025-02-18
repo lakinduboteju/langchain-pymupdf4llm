@@ -1,0 +1,31 @@
+[project]
+name = "langchain-pymupdf4llm"
+version = "0.0.1"
+description = "An integration package connecting PyMuPDF4LLM to LangChain"
+authors = [
+    {name = "Lakindu Boteju",email = "lakinduboteju@gmail.com"}
+]
+license = { text = "MIT" }
+readme = "README.md"
+
+requires-python = "<4.0,>=3.9"
+
+dependencies = [
+    "langchain-core (>=0.3.35,<0.4.0)"
+]
+
+[project.urls]
+repository = "https://github.com/lakinduboteju/langchain-pymupdf4llm"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.4"
+pytest-socket = "^0.7.0"
+pytest-asyncio = "^0.25.3"
+langchain-tests = "0.3.12"
+
+[tool.poetry.group.dev.dependencies]
+debugpy = "^1.8.12"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+docker run -it -d \
+    --name langchain-pymupdf4llm-dev \
+    -v $(pwd):/app \
+    -v $HOME/.aws:/root/.aws:ro \
+    -w /app \
+    python:3.9-slim bash
