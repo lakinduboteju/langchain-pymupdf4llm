@@ -21,7 +21,7 @@ from langchain_core.document_loaders import (
 import pymupdf
 
 
-_DEFAULT_PAGES_DELIMITER = "\n\f"
+_DEFAULT_PAGES_DELIMITER = "\n-----\n\n"
 _STD_METADATA_KEYS = {"source", "total_pages", "creationdate", "creator", "producer"}
 
 
@@ -233,7 +233,9 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                 doc_metadata = self._extract_metadata(doc, blob)
                 full_content_md = []
                 for page in doc:
-                    all_text_md = self._get_page_content_in_md(doc, page.number).strip()
+                    all_text_md = self._get_page_content_in_md(doc, page.number)
+                    if all_text_md.endswith("\n-----\n\n"):
+                        all_text_md = all_text_md[:-8]
                     if self.mode == "page":
                         yield Document(
                             page_content=all_text_md,
