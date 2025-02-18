@@ -36,3 +36,9 @@
     cd ./tests/examples
     pdflatex sample_1.tex
     ```
+
+4. Use Jupyter.
+    ``` bash
+    poetry run \
+    jupyter notebook --allow-root --ip=0.0.0.0
+    ```
