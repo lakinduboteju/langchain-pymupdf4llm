@@ -130,20 +130,20 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
 
         .. code-block:: bash
 
-            pip install -U langchain-community pymupdf4llm
+            pip install -U langchain-pymupdf4llm
 
         Instantiate the loader:
 
         .. code-block:: python
 
-            from langchain_community.document_loaders import PyMuPDF4LLMLoader
+            from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 
             loader = PyMuPDF4LLMLoader(
                 file_path = "./example_data/layout-parser-paper.pdf",
                 # headers = None
                 # password = None,
                 mode = "single",
-                pages_delimiter = "\n\f",
+                pages_delimiter = "\\n\\f",
                 # extract_images = True,
                 # images_parser = TesseractBlobParser(),
                 # table_strategy = "lines",
