@@ -31,10 +31,10 @@ Install the package using pip to start using the Document Loader:
 
 ```bash
 # When released, will be available as a PyPi package
-# pip install -U langchain-pymupdf4llm
+pip install -U langchain-pymupdf4llm
 
 # For now, install from GitHub repository
-pip install git+https://github.com/lakinduboteju/langchain-pymupdf4llm.git@main
+# pip install git+https://github.com/lakinduboteju/langchain-pymupdf4llm.git@main
 
 # pip install -qU langchain_community
 ```
