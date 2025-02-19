@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 import tempfile
 from abc import ABC
 from pathlib import PurePath
