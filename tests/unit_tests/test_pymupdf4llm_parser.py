@@ -16,7 +16,7 @@ _DOCS_DIR_PATH = os.path.join(
 )
 
 @pytest.mark.parametrize(
-    "mode,doc_filename,page_count,expected_substring",
+    "mode,pdf_filename,expected_output_doc_count,expected_content_substring",
     [
         ("single", "sample_1.pdf", 1, 'print("Hello, World!")'),
         ("page", "sample_1.pdf", 2, "Row 2, Col 2"),
@@ -24,11 +24,11 @@ _DOCS_DIR_PATH = os.path.join(
 )
 def test_pymupdf4llm_parser_modes(
     mode: str,
-    doc_filename: str,
-    page_count: int,
-    expected_substring: str,
+    pdf_filename: str,
+    expected_output_doc_count: int,
+    expected_content_substring: str,
 ):
-    doc_path = os.path.join(_DOCS_DIR_PATH, doc_filename)
+    doc_path = os.path.join(_DOCS_DIR_PATH, pdf_filename)
     assert os.path.exists(doc_path)
     blob = Blob.from_path(doc_path)
 
@@ -37,11 +37,11 @@ def test_pymupdf4llm_parser_modes(
     doc_generator = parser.lazy_parse(blob)
     assert isinstance(doc_generator, Iterator)
     docs = list(doc_generator)
-    assert len(docs) == page_count
+    assert len(docs) == expected_output_doc_count
 
     content = docs[0].page_content
     assert isinstance(content, str)
-    assert expected_substring in content
+    assert expected_content_substring in content
 
     metadata = docs[0].metadata
     assert isinstance(metadata, dict)
