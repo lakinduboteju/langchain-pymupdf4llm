@@ -1,4 +1,4 @@
-"""PyMuPDF4LLM parser class to parse blobs from PDFs."""
+"""Contains PyMuPDF4LLM parser class to parse blobs from PDFs."""
 
 import logging
 import re
