@@ -11,3 +11,4 @@ except metadata.PackageNotFoundError:
 del metadata  # optional, avoids polluting the results of dir(__package__)
 
 from .pymupdf4llm_loader import PyMuPDF4LLMLoader
+from .pymupdf4llm_parser import PyMuPDF4LLMParser
