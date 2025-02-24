@@ -30,12 +30,7 @@ The integration provided by `langchain-pymupdf4llm` adds additional features:
 Install the package using pip to start using the Document Loader:
 
 ```bash
-# When released, will be available as a PyPi package
 pip install -U langchain-pymupdf4llm
-
-# For now, install from GitHub repository
-# pip install git+https://github.com/lakinduboteju/langchain-pymupdf4llm.git@main
-
 # pip install -qU langchain_community
 ```
 
@@ -123,6 +118,22 @@ load documents using the `aload()` method:
 docs = await loader.aload()
 print(docs[0].page_content[:100])
 print(docs[0].metadata)
+```
+
+### Using the Parser
+
+```python
+from langchain_community.document_loaders import FileSystemBlobLoader
+from langchain_community.document_loaders.generic import GenericLoader
+from langchain_pymupdf4llm import PyMuPDF4LLMParser
+
+loader = GenericLoader(
+    blob_loader=FileSystemBlobLoader(
+        path="path/to/docs/",
+        glob="*.pdf",
+    ),
+    blob_parser=PyMuPDF4LLMParser(),
+)
 ```
 
 ## Contribute
