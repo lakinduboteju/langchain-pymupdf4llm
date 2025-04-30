@@ -150,8 +150,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         mode: Literal["single", "page"] = "page",
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         images_parser: Optional[BaseBlobParser] = None,
-        table_strategy: Literal["lines_strict", "lines", "text"] = "lines_strict",
-        ignore_code: bool = False,
+        **pymupdf4llm_kwargs,
     ) -> None:
         """Initialize a parser to extract PDF content in markdown using PyMuPDF4LLM.
 
@@ -161,18 +160,17 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                 for page-wise extraction.
             pages_delimiter: A string delimiter to separate pages in single-mode
                 extraction.
-            extract_images: Whether to extract images from the PDF.
-            images_parser: Optional image blob parser.
-            table_strategy: The table extraction strategy to use. Options are
-                "lines_strict", "lines", or "text". "lines_strict" is the default
-                strategy and is the most accurate for tables with column and row lines,
-                but may not work well with all documents.
-                "lines" is a less strict strategy that may work better with
-                some documents.
-                "text" is the least strict strategy and may work better
-                with documents that do not have tables with lines.
-            ignore_code: if True then mono-spaced text will not be parsed as
-                code blocks.
+            extract_images: Whether to extract images from the PDF. If True, requires
+                `images_parser` to be set.
+            images_parser: Optional image blob parser to process extracted images.
+                Required if `extract_images` is True.
+            **pymupdf4llm_kwargs: Additional keyword arguments to pass directly to the
+                `pymupdf4llm.to_markdown` function. See the `pymupdf4llm`
+                documentation for available options. Note that certain arguments
+                (`ignore_images`, `ignore_graphics`, `write_images`, `embed_images`,
+                `image_path`, `filename`, `page_chunks`, `extract_words`,
+                `show_progress`) cannot be used as they conflict with the parser's
+                internal logic.
 
         Returns:
             This method does not directly return data. Use the `parse` or `lazy_parse`
@@ -180,16 +178,51 @@ class PyMuPDF4LLMParser(BaseBlobParser):
 
         Raises:
             ValueError: If the mode is not "single" or "page".
-            ValueError: If the table strategy is not "lines_strict", "lines", or "text".
             ValueError: If `extract_images` is True and `images_parser` is not provided.
+            ValueError: If conflicting `pymupdf4llm_kwargs` are provided when
+                `extract_images` is True (e.g., `ignore_images`, `ignore_graphics`,
+                `write_images`, `embed_images`, `image_path`, `filename`).
+            ValueError: If unsupported `pymupdf4llm_kwargs` are provided (e.g.,
+                `page_chunks`, `extract_words`, `show_progress`).
         """
 
         if mode not in ["single", "page"]:
             raise ValueError("mode must be single or page")
-        if table_strategy not in ["lines_strict", "lines", "text"]:
-            raise ValueError("table_strategy must be lines_strict, lines or text")
         if extract_images and not images_parser:
             raise ValueError("images_parser must be provided if extract_images is True")
+        # Prevent conflict with the parser's image extraction logic
+        if extract_images and "ignore_images" in pymupdf4llm_kwargs:
+            raise ValueError(
+                "PyMuPDF4LLM argument: ignore_images cannot be set to True "
+                "when extract_images is True."
+            )
+        # Prevent conflict with the parser's image extraction logic
+        if extract_images and "ignore_graphics" in pymupdf4llm_kwargs:
+            raise ValueError(
+                "PyMuPDF4LLM argument: ignore_graphics cannot be set to True "
+                "when extract_images is True."
+            )
+        # Parser handles image writing internally when extract_images is True
+        if "write_images" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: write_images cannot be set to True.")
+        # Parser does not support embedding images directly
+        if "embed_images" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: embed_images cannot be set to True.")
+        # Parser manages temporary image paths internally when extract_images is True
+        if "image_path" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: image_path cannot be set to True.")
+        # Parser manages image filenames internally when extract_images is True
+        if "filename" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: filename cannot be set to True.")
+        # Parser controls page handling via the 'mode' argument
+        if "page_chunks" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: page_chunks cannot be set to True.")
+        # Parser expects markdown output, not word-level extraction
+        if "extract_words" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: extract_words cannot be set to True.")
+        # Parser manages progress display internally
+        if "show_progress" in pymupdf4llm_kwargs:
+            raise ValueError("PyMuPDF4LLM argument: show_progress cannot be set to True.")
 
         super().__init__()
 
@@ -198,8 +231,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         self.password = password
         self.extract_images = extract_images
         self.images_parser = images_parser
-        self.table_strategy = table_strategy
-        self.ignore_code = ignore_code
+        self.pymupdf4llm_kwargs = pymupdf4llm_kwargs
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
         """Lazily parse a blob from a PDF document.
@@ -268,7 +300,10 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         """
         import pymupdf4llm
 
-        pymupdf4llm_params: dict[str, Any] = {}
+        pymupdf4llm_params: dict[str, Any] = {
+            **self.pymupdf4llm_kwargs,
+        }
+
         if self.extract_images:
             temp_dir = TemporaryDirectory()
             pymupdf4llm_params["write_images"] = True
@@ -278,14 +313,15 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                 md_img_pattern = r"!\[\]\((.*?)\)"  # Regex pattern to match ![](%s)
                 img_paths = re.findall(md_img_pattern, md_text)
                 return img_paths
+        
+        # To deal with excess amounts of vector graphics
+        if "graphics_limit" not in self.pymupdf4llm_kwargs:
+            pymupdf4llm_params["graphics_limit"] = 5000
 
         # Extract the content of the page in markdown format using PyMuPDF4LLM
         page_content_md = pymupdf4llm.to_markdown(
             doc,
             pages=[page],
-            ignore_code=self.ignore_code,
-            graphics_limit=5000,  # to deal with excess amounts of vector graphics
-            table_strategy=self.table_strategy,
             show_progress=False,
             **pymupdf4llm_params,
         )
