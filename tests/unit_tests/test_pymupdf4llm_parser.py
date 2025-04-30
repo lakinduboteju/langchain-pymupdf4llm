@@ -46,3 +46,60 @@ def test_pymupdf4llm_parser_modes(
     metadata = docs[0].metadata
     assert isinstance(metadata, dict)
     assert metadata["source"] == str(doc_path)
+
+
+def test_invalid_mode():
+    """Test that an invalid mode raises ValueError."""
+    with pytest.raises(ValueError, match="mode must be single or page"):
+        PyMuPDF4LLMParser(mode="invalid_mode")
+
+
+def test_missing_images_parser():
+    """Test that ValueError is raised if extract_images is True but no images_parser."""
+    with pytest.raises(
+        ValueError, match="images_parser must be provided if extract_images is True"
+    ):
+        PyMuPDF4LLMParser(extract_images=True)
+
+
+@pytest.mark.parametrize(
+    "conflicting_kwarg",
+    [
+        "ignore_images",
+        "ignore_graphics",
+    ],
+)
+def test_conflicting_image_kwargs(conflicting_kwarg: str):
+    """Test conflicting image-related kwargs raise ValueError when extract_images=True."""
+    # A dummy parser is needed, even if not used, to satisfy the images_parser requirement
+    class DummyParser:
+        pass
+
+    kwargs = {conflicting_kwarg: True}
+    with pytest.raises(
+        ValueError,
+        match=f"PyMuPDF4LLM argument: {conflicting_kwarg} cannot be set to True when extract_images is True.",
+    ):
+        PyMuPDF4LLMParser(extract_images=True, images_parser=DummyParser(), **kwargs)
+
+
+@pytest.mark.parametrize(
+    "unsupported_kwarg",
+    [
+        "write_images",
+        "embed_images",
+        "image_path",
+        "filename",
+        "page_chunks",
+        "extract_words",
+        "show_progress",
+    ],
+)
+def test_unsupported_kwargs(unsupported_kwarg: str):
+    """Test that unsupported pymupdf4llm_kwargs raise ValueError."""
+    kwargs = {unsupported_kwarg: True}  # The value doesn't matter, just its presence
+    with pytest.raises(
+        ValueError,
+        match=f"PyMuPDF4LLM argument: {unsupported_kwarg} cannot be set to True.",
+    ):
+        PyMuPDF4LLMParser(**kwargs)
