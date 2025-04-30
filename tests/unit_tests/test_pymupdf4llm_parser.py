@@ -103,3 +103,20 @@ def test_unsupported_kwargs(unsupported_kwarg: str):
         match=f"PyMuPDF4LLM argument: {unsupported_kwarg} cannot be set to True.",
     ):
         PyMuPDF4LLMParser(**kwargs)
+
+
+@pytest.mark.parametrize(
+    "valid_kwarg_key, valid_kwarg_value",
+    [
+        ("table_strategy", "lines"),
+        ("ignore_code", True),
+        # Add other known valid kwargs if needed
+    ],
+)
+def test_valid_pymupdf4llm_kwargs(valid_kwarg_key: str, valid_kwarg_value):
+    """Test that valid pymupdf4llm_kwargs do not raise errors during init."""
+    kwargs = {valid_kwarg_key: valid_kwarg_value}
+    try:
+        PyMuPDF4LLMParser(**kwargs)
+    except ValueError as e:
+        pytest.fail(f"Initialization failed unexpectedly with valid kwarg: {e}")
