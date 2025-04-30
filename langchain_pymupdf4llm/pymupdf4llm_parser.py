@@ -3,6 +3,7 @@
 import logging
 import re
 import threading
+import os
 from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import (
@@ -304,38 +305,54 @@ class PyMuPDF4LLMParser(BaseBlobParser):
             **self.pymupdf4llm_kwargs,
         }
 
-        if self.extract_images:
-            temp_dir = TemporaryDirectory()
-            pymupdf4llm_params["write_images"] = True
-            pymupdf4llm_params["image_path"] = temp_dir.name
-
-            def find_img_paths_in_md(md_text: str) -> list[str]:
-                md_img_pattern = r"!\[\]\((.*?)\)"  # Regex pattern to match ![](%s)
-                img_paths = re.findall(md_img_pattern, md_text)
-                return img_paths
-        
         # To deal with excess amounts of vector graphics
         if "graphics_limit" not in self.pymupdf4llm_kwargs:
             pymupdf4llm_params["graphics_limit"] = 5000
 
-        # Extract the content of the page in markdown format using PyMuPDF4LLM
-        page_content_md = pymupdf4llm.to_markdown(
-            doc,
-            pages=[page],
-            show_progress=False,
-            **pymupdf4llm_params,
-        )
+        page_content_md = "" # Initialize page_content_md
 
         if self.extract_images and self.images_parser:
-            # Replace image paths in extracted markdown with
-            # generated image text/descriptions using image parser
-            img_paths = find_img_paths_in_md(page_content_md)
-            for img_path in img_paths:
-                blob = Blob.from_path(img_path)
-                image_text = next(self.images_parser.lazy_parse(blob)).page_content
-                image_text = image_text.replace("]", r"\\]")
-                img_md = f"![{image_text}](#)"
-                page_content_md = page_content_md.replace(f"![]({img_path})", img_md)
+            with TemporaryDirectory() as temp_dir:
+                pymupdf4llm_params["write_images"] = True
+                pymupdf4llm_params["image_path"] = temp_dir.name
+
+                def find_img_paths_in_md(md_text: str) -> list[str]:
+                    # Regex pattern to match ![](%s)
+                    md_img_pattern = r"!\[\]\((.*?)\)"
+                    img_paths = re.findall(md_img_pattern, md_text)
+                    return img_paths
+
+                page_content_md = pymupdf4llm.to_markdown(
+                    doc,
+                    pages=[page],
+                    show_progress=False,
+                    **pymupdf4llm_params,
+                )
+
+                # Replace image paths in extracted markdown with
+                # generated image text/descriptions using image parser
+                img_paths = find_img_paths_in_md(page_content_md)
+                for img_path in img_paths:
+                    # Check if the image file actually exists before processing
+                    if os.path.exists(img_path):
+                        blob = Blob.from_path(img_path)
+                        image_text = next(self.images_parser.lazy_parse(blob)).page_content
+                        image_text = image_text.replace("]", r"\\]")
+                        img_md = f"![{image_text}](#)"
+                        page_content_md = page_content_md.replace(f"![]({img_path})", img_md)
+                    else:
+                        logger.warning(f"Image path referenced in markdown but not found: {img_path}")
+
+        else:
+            # Extract the content of the page in markdown format using PyMuPDF4LLM
+            # when not extracting images
+            page_content_md = pymupdf4llm.to_markdown(
+                doc,
+                pages=[page],
+                show_progress=False,
+                **pymupdf4llm_params,
+            )
+
 
         return page_content_md
 
