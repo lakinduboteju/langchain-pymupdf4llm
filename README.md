@@ -79,18 +79,28 @@ loader = PyMuPDF4LLMLoader(
     ##     max_tokens=1024
     ## )),
 
-    # Table extraction strategy to use. Options are
-    # "lines_strict", "lines", or "text". "lines_strict" is the default
-    # strategy and is the most accurate for tables with column and row lines,
-    # but may not work well with all documents.
-    # "lines" is a less strict strategy that may work better with
-    # some documents.
-    # "text" is the least strict strategy and may work better
-    # with documents that do not have tables with lines.
-    ## table_strategy="lines",
-
-    # Mono-spaced text will not be parsed as code blocks
-    ## ignore_code=True
+    # Additional keyword arguments to pass directly to the
+    # underlying `pymupdf4llm.to_markdown` function.
+    # See the `pymupdf4llm` documentation for available options.
+    # Note that certain arguments (`ignore_images`, `ignore_graphics`,
+    # `write_images`, `embed_images`, `image_path`, `filename`,
+    # `page_chunks`, `extract_words`, `show_progress`) cannot be used as
+    # they conflict with the loader's internal logic.
+    # Example:
+    # **{
+    #     # Table extraction strategy to use. Options are
+    #     # "lines_strict", "lines", or "text". "lines_strict" is the default
+    #     # strategy and is the most accurate for tables with column and row lines,
+    #     # but may not work well with all documents.
+    #     # "lines" is a less strict strategy that may work better with
+    #     # some documents.
+    #     # "text" is the least strict strategy and may work better
+    #     # with documents that do not have tables with lines.
+    #     "table_strategy": "lines",
+    #
+    #     # Mono-spaced text will not be parsed as code blocks
+    #     "ignore_code": True,
+    # }
 )
 ```
 

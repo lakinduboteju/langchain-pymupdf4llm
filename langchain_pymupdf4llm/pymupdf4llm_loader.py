@@ -175,14 +175,13 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
         self,
         file_path: Union[str, PurePath],
         *,
+        headers: Optional[dict] = None,
         password: Optional[str] = None,
         mode: Literal["single", "page"] = "page",
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         extract_images: bool = False,
         images_parser: Optional[BaseBlobParser] = None,
-        table_strategy: Literal["lines_strict", "lines", "text"] = "lines_strict",
-        ignore_code: bool = False,
-        headers: Optional[dict] = None,
+        **pymupdf4llm_kwargs,
     ) -> None:
         """Initialize with a file path.
 
@@ -195,18 +194,17 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
                 for page-wise extraction.
             pages_delimiter: A string delimiter to separate pages in single-mode
                 extraction.
-            extract_images: Whether to extract images from the PDF.
-            images_parser: Optional image blob parser.
-            table_strategy: The table extraction strategy to use. Options are
-                "lines_strict", "lines", or "text". "lines_strict" is the default
-                strategy and is the most accurate for tables with column and row lines,
-                but may not work well with all documents.
-                "lines" is a less strict strategy that may work better with
-                some documents.
-                "text" is the least strict strategy and may work better
-                with documents that do not have tables with lines.
-            ignore_code: if True then mono-spaced text will not be parsed as
-                code blocks.
+            extract_images: Whether to extract images from the PDF. If True, requires
+                `images_parser` to be set.
+            images_parser: Optional image blob parser to process extracted images.
+                Required if `extract_images` is True.
+            **pymupdf4llm_kwargs: Additional keyword arguments to pass directly to the
+                underlying `pymupdf4llm.to_markdown` function via the parser.
+                See the `pymupdf4llm` documentation for available options.
+                Note that certain arguments (`ignore_images`, `ignore_graphics`,
+                `write_images`, `embed_images`, `image_path`, `filename`,
+                `page_chunks`, `extract_words`, `show_progress`) cannot be used as
+                they conflict with the loader's internal logic.
 
         Returns:
             This method does not directly return data. Use the `load`, `lazy_load`, or
@@ -215,14 +213,17 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
 
         Raises:
             ValueError: If the `mode` argument is not one of "single" or "page".
-            ValueError: If the `table_strategy` argument is not one of "lines_strict",
-                "lines", or "text".
+            ValueError: If `extract_images` is True and `images_parser` is not provided.
+            ValueError: If conflicting `pymupdf4llm_kwargs` are provided when
+                `extract_images` is True (e.g., `ignore_images`, `ignore_graphics`,
+                `write_images`, `embed_images`, `image_path`, `filename`).
+            ValueError: If unsupported `pymupdf4llm_kwargs` are provided (e.g.,
+                `page_chunks`, `extract_words`, `show_progress`).
         """
 
-        if mode not in ["single", "page"]:
-            raise ValueError("mode must be single or page")
-        if table_strategy not in ["lines_strict", "lines", "text"]:
-            raise ValueError("table_strategy must be lines_strict, lines or text")
+        # Input validation logic is primarily handled within the PyMuPDF4LLMParser,
+        # so we don't need to repeat all checks here.
+        # We pass the kwargs directly to the parser.
 
         super().__init__(file_path, headers=headers)
         self.parser = PyMuPDF4LLMParser(
@@ -231,8 +232,7 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
             pages_delimiter=pages_delimiter,
             extract_images=extract_images,
             images_parser=images_parser,
-            table_strategy=table_strategy,
-            ignore_code=ignore_code,
+            **pymupdf4llm_kwargs,
         )
 
     def _lazy_load(self, **kwargs: Any) -> Iterator[Document]:
