@@ -314,7 +314,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         if self.extract_images and self.images_parser:
             with TemporaryDirectory() as temp_dir:
                 pymupdf4llm_params["write_images"] = True
-                pymupdf4llm_params["image_path"] = temp_dir.name
+                pymupdf4llm_params["image_path"] = temp_dir
 
                 def find_img_paths_in_md(md_text: str) -> list[str]:
                     # Regex pattern to match ![](%s)
