@@ -12,7 +12,7 @@ converting PDF content into Markdown format,
 making it an ideal tool for integrating with Large Language Models (LLMs) and
 Retrieval-Augmented Generation (RAG) environments.
 
-**✨ Now fully compatible with LangChain v1.0+ and LangGraph v1.0+!**
+**✨ Now fully compatible with LangChain v1.0+!**
 
 ## Features
 
@@ -34,7 +34,6 @@ The integration provided by `langchain-pymupdf4llm` adds additional features:
 
 - Python 3.11 or higher
 - LangChain Core v1.0.0 or higher
-- LangGraph v1.0.0 or higher
 - PyMuPDF4LLM v0.1.0 or higher
 
 ## Installation

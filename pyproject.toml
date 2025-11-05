@@ -12,8 +12,7 @@ requires-python = "<4.0,>=3.11"
 
 dependencies = [
     "langchain-core>=1.0.0,<2.0.0",
-    "pymupdf4llm>=0.1.0,<0.2.0",
-    "langgraph>=1.0.0,<2.0.0"
+    "pymupdf4llm>=0.1.0,<0.2.0"
 ]
 
 [project.urls]
