@@ -1,6 +1,9 @@
 # langchain-pymupdf4llm
 An integration package connecting PyMuPDF4LLM to LangChain as a Document Loader.
 
+[![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://github.com/langchain-ai/langchain)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+
 ## Introduction
 `langchain-pymupdf4llm` is a powerful LangChain integration package that
 seamlessly incorporates the capabilities of PyMuPDF4LLM as a LangChain Document Loader.
@@ -8,6 +11,8 @@ This package is designed to facilitate the process of extracting and
 converting PDF content into Markdown format,
 making it an ideal tool for integrating with Large Language Models (LLMs) and
 Retrieval-Augmented Generation (RAG) environments.
+
+**✨ Now fully compatible with LangChain v1.0+!**
 
 ## Features
 
@@ -25,13 +30,25 @@ The integration provided by `langchain-pymupdf4llm` adds additional features:
 
 - **Markdown Content with Image Descriptions:** When image extraction is enabled, images are included in the Markdown output with descriptive text provided by an image parser instance provided during initialization of the Document Loader.
 
+## Requirements
+
+- Python 3.11 or higher
+- LangChain Core v1.0.0 or higher
+- PyMuPDF4LLM v0.1.0 or higher
+
 ## Installation
 
 Install the package using pip to start using the Document Loader:
 
 ```bash
 pip install -U langchain-pymupdf4llm
-# pip install -qU langchain_community
+```
+
+For optional image parsing capabilities, you may also want to install:
+
+```bash
+# For OCR-based image parsing
+pip install langchain-community
 ```
 
 ## Usage
@@ -146,46 +163,75 @@ loader = GenericLoader(
 )
 ```
 
+## Development
+
+### Development using Docker
+
+This project uses Docker for a consistent development environment. Follow these steps to get started:
+
+1. **Build the Docker development environment:**
+   ```bash
+   bash ./docker_build_dev_env.sh
+   ```
+
+2. **Run the development container:**
+   ```bash
+   bash ./docker_run_dev_env.sh
+   ```
+
+3. **Access the container:**
+   ```bash
+   docker exec -it langchain-pymupdf4llm-dev bash
+   ```
+
+4. **Install dependencies inside the container:**
+   ```bash
+   poetry install --with dev,test
+   ```
+
+5. **Run tests:**
+   ```bash
+   poetry run pytest -v
+   ```
+
+6. **Build the package:**
+   ```bash
+   poetry build
+   ```
+
+### Managing the Docker Container
+
+```bash
+# Stop the container
+docker stop langchain-pymupdf4llm-dev
+
+# Start the container again
+docker start langchain-pymupdf4llm-dev
+
+# Remove the container
+docker rm langchain-pymupdf4llm-dev
+```
+
+### Creating Test Documents
+
+To create example PDF documents for testing using LaTeX:
+
+```bash
+apt update -y
+apt install -y texlive
+
+cd ./tests/examples
+pdflatex sample_1.tex
+```
+
+### Using Jupyter Notebooks
+
+To use Jupyter notebooks for development and testing:
+
+```bash
+poetry run jupyter notebook --allow-root --ip=0.0.0.0
+```
+
 ## Contribute
 
-### Development Instructions
-
-1. Bring up development environment on Docker.
-    ``` bash
-    # Build Docker image for dev env
-    bash ./docker_build_dev_env.sh
-
-    # Run dev env on Docker container
-    bash ./docker_run_dev_env.sh
-
-    # Start bash session on Docker container
-    docker exec -it langchain-pymupdf4llm-dev bash
-
-    # exit
-    # docker stop langchain-pymupdf4llm-dev
-    # docker start langchain-pymupdf4llm-dev
-    # docker exec -it langchain-pymupdf4llm-dev bash
-    # docker stop langchain-pymupdf4llm-dev
-    # docker rm langchain-pymupdf4llm-dev
-    # bash ./docker_run_dev_env.sh
-    ```
-
-2. Develop on Docker development environment.
-    ``` bash
-    poetry install --with dev,test
-    ```
-
-3. Create example documents for tests using LaTeX.
-    ``` bash
-    apt update -y
-    apt install -y texlive
-
-    cd ./tests/examples
-    pdflatex sample_1.tex
-    ```
-
-4. Use Jupyter.
-    ``` bash
-    poetry run \
-    jupyter notebook --allow-root --ip=0.0.0.0
-    ```
+We welcome contributions! Please feel free to submit issues and pull requests on our [GitHub repository](https://github.com/lakinduboteju/langchain-pymupdf4llm).
