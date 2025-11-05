@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 RUN apt update -y
 # Build tools are used for pymupdf during installation
