@@ -60,11 +60,11 @@ pip install -U langchain-pymupdf4llm
 Before installing, make sure the AGPL/commercial licensing model of the
 PyMuPDF stack works for your use case.
 
-For optional image parsing capabilities, you may also want to install:
+Optional extras:
 
 ```bash
-# For OCR-based image parsing
-pip install langchain-community
+# Optional image parser integrations
+pip install -U "langchain-pymupdf4llm[community]"
 ```
 
 ## Licensing Correction For Existing Users
@@ -197,38 +197,51 @@ loader = GenericLoader(
 
 ## Development
 
-### Development using Docker
+### Quickstart (uv on host)
 
-This project uses Docker for a consistent development environment. Follow these steps to get started:
+This repository uses [`uv`](https://docs.astral.sh/uv/) for local development.
 
-1. **Build the Docker development environment:**
+```bash
+uv sync --extra dev --extra test --extra notebooks
+uv run ruff check .
+uv run ruff format . --check
+uv run mypy
+uv run pytest -v
+uv build
+```
+
+### Development Container (recommended)
+
+This repository includes `.devcontainer/devcontainer.json`.
+
+1. Open the repository in Cursor/VS Code.
+2. Reopen in container when prompted.
+3. The container runs `uv sync --extra dev --extra test --extra notebooks` automatically.
+
+The dev container forwards:
+
+- `5678` for `debugpy`
+- `8888` for Jupyter notebooks
+
+### Development using Docker scripts
+
+If you prefer manual Docker commands:
+
+1. Build the dev image:
    ```bash
    bash ./docker_build_dev_env.sh
    ```
-
-2. **Run the development container:**
+2. Run the dev container:
    ```bash
    bash ./docker_run_dev_env.sh
    ```
-
-3. **Access the container:**
+3. Open a shell:
    ```bash
    docker exec -it langchain-pymupdf4llm-dev bash
    ```
-
-4. **Install dependencies inside the container:**
+4. Sync dependencies in the container:
    ```bash
-   poetry install --with dev,test
-   ```
-
-5. **Run tests:**
-   ```bash
-   poetry run pytest -v
-   ```
-
-6. **Build the package:**
-   ```bash
-   poetry build
+   uv sync --extra dev --extra test --extra notebooks
    ```
 
 ### Managing the Docker Container
@@ -261,9 +274,23 @@ pdflatex sample_1.tex
 To use Jupyter notebooks for development and testing:
 
 ```bash
-poetry run jupyter notebook --allow-root --ip=0.0.0.0
+uv run jupyter notebook --allow-root --ip=0.0.0.0
+```
+
+### Test markers
+
+This project defines three pytest markers:
+
+- `unit` for focused fast tests
+- `integration` for end-to-end loader/parser behavior
+- `network` for tests that require outbound HTTP access
+
+By default, network tests are skipped via pytest config. To run them explicitly:
+
+```bash
+uv run pytest -v -m network
 ```
 
 ## Contribute
 
-We welcome contributions! Please feel free to submit issues and pull requests on our [GitHub repository](https://github.com/lakinduboteju/langchain-pymupdf4llm).
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for development, testing, and release workflow details.
