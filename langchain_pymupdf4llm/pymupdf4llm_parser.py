@@ -142,15 +142,15 @@ class PyMuPDF4LLMParser(BaseBlobParser):
     _lock = threading.Lock()
 
     def __init__(
-            self,
-            extract_images: bool = False,
-            *,
-            password: Optional[str] = None,
-            mode: Literal["single", "page"] = "page",
-            pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
-            images_parser: Optional[BaseBlobParser] = None,
-            use_layout: bool = False,
-            **pymupdf4llm_kwargs,
+        self,
+        extract_images: bool = False,
+        *,
+        password: Optional[str] = None,
+        mode: Literal["single", "page"] = "page",
+        pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
+        images_parser: Optional[BaseBlobParser] = None,
+        use_layout: bool = False,
+        **pymupdf4llm_kwargs,
     ) -> None:
         """Initialize a parser to extract PDF content in markdown using PyMuPDF4LLM.
 
@@ -164,8 +164,8 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                 `images_parser` to be set.
             images_parser: Optional image blob parser to process extracted images.
                 Required if `extract_images` is True.
-            use_layout: Whether to use layout information from the PDF.
-                Ignored if PyMuPDF4LLM version is less than 1.27.2.
+            use_layout: Whether to enable PyMuPDF layout extraction when the installed
+                `pymupdf4llm` version exposes `use_layout()`.
             **pymupdf4llm_kwargs: Additional keyword arguments to pass directly to the
                 `pymupdf4llm.to_markdown` function. See the `pymupdf4llm`
                 documentation for available options. Note that certain arguments
@@ -303,8 +303,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         """
         import pymupdf4llm
 
-        # Set layout on version 1.x.x else ignore
-        if pymupdf4llm.version_tuple[0] >= 1:
+        if hasattr(pymupdf4llm, "use_layout"):
             pymupdf4llm.use_layout(self.use_layout)
 
         pymupdf4llm_params: dict[str, Any] = {

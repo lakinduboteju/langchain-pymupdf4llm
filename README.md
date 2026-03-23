@@ -96,6 +96,10 @@ loader = PyMuPDF4LLMLoader(
     ##     max_tokens=1024
     ## )),
 
+    # Optional: toggle PyMuPDF layout mode when supported by
+    # pymupdf4llm >= 1.27.2.1.
+    ## use_layout=False,
+
     # Additional keyword arguments to pass directly to the
     # underlying `pymupdf4llm.to_markdown` function.
     # See the `pymupdf4llm` documentation for available options.

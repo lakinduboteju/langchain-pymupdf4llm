@@ -1,9 +1,12 @@
 import pytest
 import os
+import sys
 from pathlib import Path
+from types import SimpleNamespace
 from typing import (
     Iterator
 )
+from unittest.mock import Mock
 
 from langchain_core.document_loaders import Blob
 
@@ -120,3 +123,36 @@ def test_valid_pymupdf4llm_kwargs(valid_kwarg_key: str, valid_kwarg_value):
         PyMuPDF4LLMParser(**kwargs)
     except ValueError as e:
         pytest.fail(f"Initialization failed unexpectedly with valid kwarg: {e}")
+
+
+def test_use_layout_is_ignored_when_not_supported(monkeypatch: pytest.MonkeyPatch):
+    """Test parsing still works when pymupdf4llm has no use_layout support."""
+    fake_to_markdown = Mock(return_value="page markdown")
+    fake_module = SimpleNamespace(to_markdown=fake_to_markdown)
+    monkeypatch.setitem(sys.modules, "pymupdf4llm", fake_module)
+
+    parser = PyMuPDF4LLMParser(use_layout=True)
+
+    assert parser._get_page_content_in_md(doc=object(), page=0) == "page markdown"
+    fake_to_markdown.assert_called_once()
+    _, kwargs = fake_to_markdown.call_args
+    assert kwargs["pages"] == [0]
+    assert kwargs["show_progress"] is False
+    assert kwargs["graphics_limit"] == 5000
+
+
+def test_use_layout_is_called_when_supported(monkeypatch: pytest.MonkeyPatch):
+    """Test the parser forwards the configured use_layout value when available."""
+    fake_to_markdown = Mock(return_value="page markdown")
+    fake_use_layout = Mock()
+    fake_module = SimpleNamespace(
+        to_markdown=fake_to_markdown,
+        use_layout=fake_use_layout,
+    )
+    monkeypatch.setitem(sys.modules, "pymupdf4llm", fake_module)
+
+    parser = PyMuPDF4LLMParser(use_layout=True)
+
+    assert parser._get_page_content_in_md(doc=object(), page=1) == "page markdown"
+    fake_use_layout.assert_called_once_with(True)
+    fake_to_markdown.assert_called_once()
