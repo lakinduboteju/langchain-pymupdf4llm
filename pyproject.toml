@@ -5,8 +5,11 @@ description = "An integration package connecting PyMuPDF4LLM to LangChain"
 authors = [
     {name = "Lakindu Boteju",email = "lakinduboteju@gmail.com"}
 ]
-license = "MIT"
+license = "AGPL-3.0-only"
 readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: GNU Affero General Public License v3",
+]
 
 requires-python = "<4.0,>=3.11"
 

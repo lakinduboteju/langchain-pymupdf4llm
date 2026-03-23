@@ -1,0 +1,23 @@
+This repository is an independent LangChain integration package maintained
+outside the LangChain monorepo.
+
+Licensing correction
+--------------------
+Earlier releases of this package were labeled as MIT. That was incorrect for
+this integration because the package hard-depends on PyMuPDF4LLM / PyMuPDF.
+This repository is now distributed under the GNU Affero General Public License
+v3.0 only (AGPL-3.0-only).
+
+Downstream users should review their own obligations before using this package
+in distributed software or network services. Users who cannot comply with the
+AGPL should evaluate Artifex's commercial licensing options for the PyMuPDF
+stack.
+
+Third-party notices
+-------------------
+- `langchain-core` is licensed under the MIT License by LangChain, Inc.
+- `pymupdf4llm` is published by Artifex under AGPL/commercial terms and pulls
+  in the PyMuPDF stack.
+
+See upstream projects for their full license texts and any additional notice
+requirements.

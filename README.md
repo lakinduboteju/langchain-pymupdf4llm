@@ -1,5 +1,5 @@
 # langchain-pymupdf4llm
-An integration package connecting PyMuPDF4LLM to LangChain as a Document Loader.
+An independent LangChain integration package connecting PyMuPDF4LLM to LangChain as a document loader.
 
 [![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://github.com/langchain-ai/langchain)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
@@ -13,6 +13,19 @@ making it an ideal tool for integrating with Large Language Models (LLMs) and
 Retrieval-Augmented Generation (RAG) environments.
 
 **✨ Now fully compatible with LangChain v1.0+!**
+
+## Licensing
+This package depends directly on `pymupdf4llm` / `pymupdf`, which are published
+by Artifex under AGPL/commercial terms. Because this integration wraps that
+stack directly, this repository is distributed under `AGPL-3.0-only`.
+
+If you distribute software or provide a network service that uses this package,
+you must evaluate your own AGPL compliance obligations. If you cannot comply
+with the AGPL, obtain an appropriate commercial license for the PyMuPDF stack
+from Artifex instead of relying on this package under the AGPL.
+
+`langchain-core` remains MIT-licensed and is compatible with this package's
+AGPL license. See `NOTICE` for third-party attribution details.
 
 ## Features
 
@@ -34,7 +47,7 @@ The integration provided by `langchain-pymupdf4llm` adds additional features:
 
 - Python 3.11 or higher
 - LangChain Core v1.0.0 or higher
-- PyMuPDF4LLM v0.1.0 or higher
+- PyMuPDF4LLM v1.27.2.1 up to, but not including, v1.28.0
 
 ## Installation
 
@@ -44,12 +57,27 @@ Install the package using pip to start using the Document Loader:
 pip install -U langchain-pymupdf4llm
 ```
 
+Before installing, make sure the AGPL/commercial licensing model of the
+PyMuPDF stack works for your use case.
+
 For optional image parsing capabilities, you may also want to install:
 
 ```bash
 # For OCR-based image parsing
 pip install langchain-community
 ```
+
+## Licensing Correction For Existing Users
+Earlier releases of this package were incorrectly labeled as MIT. The package
+has always depended on the AGPL/commercial PyMuPDF stack, so existing users
+should re-evaluate whether their usage and redistribution model is compatible
+with that dependency chain.
+
+Future corrective releases should:
+
+1. keep the AGPL package metadata and repository license files aligned
+2. clearly disclose the licensing correction in release notes
+3. deprecate or supersede the incorrectly labeled release on package indexes where possible
 
 ## Usage
 
