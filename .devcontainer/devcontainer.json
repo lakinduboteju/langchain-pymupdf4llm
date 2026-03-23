@@ -1,0 +1,36 @@
+{
+  "name": "langchain-pymupdf4llm",
+  "build": {
+    "dockerfile": "../dev.Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/app",
+  "mounts": [
+    "source=${localWorkspaceFolder},target=/app,type=bind,consistency=cached"
+  ],
+  "postCreateCommand": "uv sync --extra dev --extra test --extra notebooks",
+  "forwardPorts": [
+    5678,
+    8888
+  ],
+  "portsAttributes": {
+    "5678": {
+      "label": "debugpy"
+    },
+    "8888": {
+      "label": "Jupyter Notebook"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/app/.venv/bin/python"
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff"
+      ]
+    }
+  }
+}
