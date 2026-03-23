@@ -1,9 +1,9 @@
 """Contains PyMuPDF4LLM parser class to parse blobs from PDFs."""
 
 import logging
+import os
 import re
 import threading
-import os
 from datetime import datetime
 from tempfile import TemporaryDirectory
 from typing import (
@@ -13,13 +13,9 @@ from typing import (
     Optional,
 )
 
-from langchain_core.documents import Document
-from langchain_core.document_loaders import (
-    Blob,
-    BaseBlobParser
-)
-
 import pymupdf
+from langchain_core.document_loaders import BaseBlobParser, Blob
+from langchain_core.documents import Document
 
 _DEFAULT_PAGES_DELIMITER = "\n-----\n\n"
 _STD_METADATA_KEYS = {"source", "total_pages", "creationdate", "creator", "producer"}
@@ -206,10 +202,14 @@ class PyMuPDF4LLMParser(BaseBlobParser):
             )
         # Parser handles image writing internally when extract_images is True
         if "write_images" in pymupdf4llm_kwargs:
-            raise ValueError("PyMuPDF4LLM argument: write_images cannot be set to True.")
+            raise ValueError(
+                "PyMuPDF4LLM argument: write_images cannot be set to True."
+            )
         # Parser does not support embedding images directly
         if "embed_images" in pymupdf4llm_kwargs:
-            raise ValueError("PyMuPDF4LLM argument: embed_images cannot be set to True.")
+            raise ValueError(
+                "PyMuPDF4LLM argument: embed_images cannot be set to True."
+            )
         # Parser manages temporary image paths internally when extract_images is True
         if "image_path" in pymupdf4llm_kwargs:
             raise ValueError("PyMuPDF4LLM argument: image_path cannot be set to True.")
@@ -221,10 +221,14 @@ class PyMuPDF4LLMParser(BaseBlobParser):
             raise ValueError("PyMuPDF4LLM argument: page_chunks cannot be set to True.")
         # Parser expects markdown output, not word-level extraction
         if "extract_words" in pymupdf4llm_kwargs:
-            raise ValueError("PyMuPDF4LLM argument: extract_words cannot be set to True.")
+            raise ValueError(
+                "PyMuPDF4LLM argument: extract_words cannot be set to True."
+            )
         # Parser manages progress display internally
         if "show_progress" in pymupdf4llm_kwargs:
-            raise ValueError("PyMuPDF4LLM argument: show_progress cannot be set to True.")
+            raise ValueError(
+                "PyMuPDF4LLM argument: show_progress cannot be set to True."
+            )
 
         super().__init__()
 
@@ -288,9 +292,9 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                     )
 
     def _get_page_content_in_md(
-            self,
-            doc: pymupdf.Document,
-            page: int,
+        self,
+        doc: pymupdf.Document,
+        page: int,
     ) -> str:
         """Get the content of the page in markdown using PyMuPDF4LLM and RapidOCR.
 
@@ -341,12 +345,18 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                     # Check if the image file actually exists before processing
                     if os.path.exists(img_path):
                         blob = Blob.from_path(img_path)
-                        image_text = next(self.images_parser.lazy_parse(blob)).page_content
+                        image_text = next(
+                            self.images_parser.lazy_parse(blob)
+                        ).page_content
                         image_text = image_text.replace("]", r"\\]")
                         img_md = f"![{image_text}](#)"
-                        page_content_md = page_content_md.replace(f"![]({img_path})", img_md)
+                        page_content_md = page_content_md.replace(
+                            f"![]({img_path})", img_md
+                        )
                     else:
-                        logger.warning(f"Image path referenced in markdown but not found: {img_path}")
+                        logger.warning(
+                            f"Image path referenced in markdown but not found: {img_path}"
+                        )
 
         else:
             # Extract the content of the page in markdown format using PyMuPDF4LLM

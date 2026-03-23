@@ -1,11 +1,11 @@
-import pytest
 import os
 from pathlib import Path
-from typing import (
-    Iterator
-)
+from typing import Iterator
 
+import pytest
 from langchain_pymupdf4llm import PyMuPDF4LLMLoader
+
+pytestmark = pytest.mark.integration
 
 
 _DOCS_DIR_PATH = os.path.join(
@@ -13,18 +13,25 @@ _DOCS_DIR_PATH = os.path.join(
     "examples",
 )
 
+
 @pytest.mark.parametrize(
     "mode,file_path,expected_output_doc_count,expected_content_substring",
     [
-        (
+        pytest.param(
             "page",
             "https://people.sc.fsu.edu/~jpeterson/hello_world.pdf",
             1,
-            "the simplest example of a program one can write"
+            "the simplest example of a program one can write",
+            marks=pytest.mark.network,
         ),
-        ("single", os.path.join(_DOCS_DIR_PATH, "sample_1.pdf"), 1, 'print("Hello, World!")'),
+        (
+            "single",
+            os.path.join(_DOCS_DIR_PATH, "sample_1.pdf"),
+            1,
+            'print("Hello, World!")',
+        ),
         ("page", os.path.join(_DOCS_DIR_PATH, "sample_1.pdf"), 2, "Row 2, Col 2"),
-    ]
+    ],
 )
 def test_pymupdf4llm_loader(
     mode: str,

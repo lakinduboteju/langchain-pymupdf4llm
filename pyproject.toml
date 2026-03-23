@@ -8,29 +8,87 @@ authors = [
 license = "AGPL-3.0-only"
 readme = "README.md"
 classifiers = [
+    "Development Status :: 4 - Beta",
     "License :: OSI Approved :: GNU Affero General Public License v3",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Text Processing",
 ]
+keywords = ["langchain", "document-loader", "pdf", "pymupdf", "rag"]
 
 requires-python = "<4.0,>=3.11"
 
 dependencies = [
     "langchain-core>=1.0.0,<2.0.0",
-    "pymupdf4llm>=1.27.2.1,<1.28.0"
+    "pymupdf4llm>=1.27.2.1,<1.28.0",
+    "requests>=2.32.0,<3.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build>=1.2.2",
+    "debugpy>=1.8.12",
+    "mypy>=1.16.0",
+    "pre-commit>=4.2.0",
+    "ruff>=0.12.0",
+]
+test = [
+    "langchain-tests>=1.0.0,<2.0.0",
+    "pytest>=8.3.0,<9.0.0",
+    "pytest-asyncio>=1.2.0,<2.0.0",
+    "pytest-socket>=0.7.0,<1.0.0",
+]
+notebooks = [
+    "ipykernel>=6.30.0,<7.0.0",
+    "notebook>=7.0.0,<8.0.0",
+]
+community = [
+    "langchain-community>=0.3.0",
 ]
 
 [project.urls]
 repository = "https://github.com/lakinduboteju/langchain-pymupdf4llm"
-
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.0"
-pytest-socket = "^0.7.0"
-pytest-asyncio = "^1.2.0"
-langchain-tests = "^1.0.0"
-
-[tool.poetry.group.dev.dependencies]
-debugpy = "^1.8.12"
-jupyter = "^1.1.1"
+documentation = "https://github.com/lakinduboteju/langchain-pymupdf4llm#readme"
+issues = "https://github.com/lakinduboteju/langchain-pymupdf4llm/issues"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["langchain_pymupdf4llm"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+src = ["langchain_pymupdf4llm", "tests"]
+extend-exclude = ["notebooks"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"langchain_pymupdf4llm/__init__.py" = ["E402", "F401"]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["langchain_pymupdf4llm"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+ignore_missing_imports = true
+disable_error_code = ["attr-defined", "import-untyped", "index", "operator", "union-attr"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers -m 'not network'"
+markers = [
+    "unit: Fast tests for parser and local behavior.",
+    "integration: Integration tests that exercise loader/parser end-to-end.",
+    "network: Tests requiring outbound network access.",
+]

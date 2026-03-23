@@ -1,16 +1,15 @@
-import pytest
 import os
 import sys
 from pathlib import Path
 from types import SimpleNamespace
-from typing import (
-    Iterator
-)
+from typing import Iterator
 from unittest.mock import Mock
 
+import pytest
 from langchain_core.document_loaders import Blob
-
 from langchain_pymupdf4llm.pymupdf4llm_parser import PyMuPDF4LLMParser
+
+pytestmark = pytest.mark.unit
 
 
 _DOCS_DIR_PATH = os.path.join(
@@ -18,12 +17,13 @@ _DOCS_DIR_PATH = os.path.join(
     "examples",
 )
 
+
 @pytest.mark.parametrize(
     "mode,pdf_filename,expected_output_doc_count,expected_content_substring",
     [
         ("single", "sample_1.pdf", 1, 'print("Hello, World!")'),
         ("page", "sample_1.pdf", 2, "Row 2, Col 2"),
-    ]
+    ],
 )
 def test_pymupdf4llm_parser_modes(
     mode: str,
@@ -74,6 +74,7 @@ def test_missing_images_parser():
 )
 def test_conflicting_image_kwargs(conflicting_kwarg: str):
     """Test conflicting image-related kwargs raise ValueError when extract_images=True."""
+
     # A dummy parser is needed, even if not used, to satisfy the images_parser requirement
     class DummyParser:
         pass

@@ -1,5 +1,4 @@
-"""Main entrypoint to **langchain-pymupdf4llm** package.
-"""
+"""Main entrypoint to **langchain-pymupdf4llm** package."""
 
 from importlib import metadata
 

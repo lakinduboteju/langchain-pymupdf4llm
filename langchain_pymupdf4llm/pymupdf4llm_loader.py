@@ -7,7 +7,6 @@ import tempfile
 from abc import ABC
 from pathlib import PurePath
 from typing import (
-    TYPE_CHECKING,
     Any,
     Iterator,
     Literal,
@@ -17,15 +16,14 @@ from typing import (
 from urllib.parse import urlparse
 
 import requests
-from langchain_core.documents import Document
 from langchain_core.document_loaders import (
-    Blob,
-    BaseLoader,
     BaseBlobParser,
+    BaseLoader,
+    Blob,
 )
+from langchain_core.documents import Document
 
 from langchain_pymupdf4llm.pymupdf4llm_parser import PyMuPDF4LLMParser
-
 
 _DEFAULT_PAGES_DELIMITER = "\n-----\n\n"
 
