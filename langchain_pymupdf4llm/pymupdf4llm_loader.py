@@ -181,6 +181,7 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         extract_images: bool = False,
         images_parser: Optional[BaseBlobParser] = None,
+        use_layout: bool = False,
         **pymupdf4llm_kwargs,
     ) -> None:
         """Initialize with a file path.
@@ -198,6 +199,8 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
                 `images_parser` to be set.
             images_parser: Optional image blob parser to process extracted images.
                 Required if `extract_images` is True.
+            use_layout: Whether to enable PyMuPDF layout extraction when supported by
+                the installed `pymupdf4llm` version.
             **pymupdf4llm_kwargs: Additional keyword arguments to pass directly to the
                 underlying `pymupdf4llm.to_markdown` function via the parser.
                 See the `pymupdf4llm` documentation for available options.
@@ -232,6 +235,7 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
             pages_delimiter=pages_delimiter,
             extract_images=extract_images,
             images_parser=images_parser,
+            use_layout=use_layout,
             **pymupdf4llm_kwargs,
         )
 

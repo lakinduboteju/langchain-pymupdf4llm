@@ -49,3 +49,11 @@ def test_pymupdf4llm_loader(
     metadata = docs[0].metadata
     assert isinstance(metadata, dict)
     assert metadata["source"] == str(file_path)
+
+
+def test_loader_forwards_use_layout():
+    file_path = os.path.join(_DOCS_DIR_PATH, "sample_1.pdf")
+
+    loader = PyMuPDF4LLMLoader(file_path=file_path, use_layout=True)
+
+    assert loader.parser.use_layout is True

@@ -21,10 +21,8 @@ from langchain_core.document_loaders import (
 
 import pymupdf
 
-
 _DEFAULT_PAGES_DELIMITER = "\n-----\n\n"
 _STD_METADATA_KEYS = {"source", "total_pages", "creationdate", "creator", "producer"}
-
 
 logger = logging.getLogger(__name__)
 
@@ -151,6 +149,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         mode: Literal["single", "page"] = "page",
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         images_parser: Optional[BaseBlobParser] = None,
+        use_layout: bool = False,
         **pymupdf4llm_kwargs,
     ) -> None:
         """Initialize a parser to extract PDF content in markdown using PyMuPDF4LLM.
@@ -165,6 +164,8 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                 `images_parser` to be set.
             images_parser: Optional image blob parser to process extracted images.
                 Required if `extract_images` is True.
+            use_layout: Whether to enable PyMuPDF layout extraction when the installed
+                `pymupdf4llm` version exposes `use_layout()`.
             **pymupdf4llm_kwargs: Additional keyword arguments to pass directly to the
                 `pymupdf4llm.to_markdown` function. See the `pymupdf4llm`
                 documentation for available options. Note that certain arguments
@@ -232,6 +233,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         self.password = password
         self.extract_images = extract_images
         self.images_parser = images_parser
+        self.use_layout = use_layout
         self.pymupdf4llm_kwargs = pymupdf4llm_kwargs
 
     def lazy_parse(self, blob: Blob) -> Iterator[Document]:
@@ -286,9 +288,9 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                     )
 
     def _get_page_content_in_md(
-        self,
-        doc: pymupdf.Document,
-        page: int,
+            self,
+            doc: pymupdf.Document,
+            page: int,
     ) -> str:
         """Get the content of the page in markdown using PyMuPDF4LLM and RapidOCR.
 
@@ -301,6 +303,9 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         """
         import pymupdf4llm
 
+        if hasattr(pymupdf4llm, "use_layout"):
+            pymupdf4llm.use_layout(self.use_layout)
+
         pymupdf4llm_params: dict[str, Any] = {
             **self.pymupdf4llm_kwargs,
         }
@@ -309,7 +314,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         if "graphics_limit" not in self.pymupdf4llm_kwargs:
             pymupdf4llm_params["graphics_limit"] = 5000
 
-        page_content_md = "" # Initialize page_content_md
+        page_content_md = ""  # Initialize page_content_md
 
         if self.extract_images and self.images_parser:
             with TemporaryDirectory() as temp_dir:
@@ -352,7 +357,6 @@ class PyMuPDF4LLMParser(BaseBlobParser):
                 show_progress=False,
                 **pymupdf4llm_params,
             )
-
 
         return page_content_md
 
