@@ -9,6 +9,7 @@ from pathlib import PurePath
 from typing import (
     TYPE_CHECKING,
     Any,
+    Callable,
     Iterator,
     Literal,
     Optional,
@@ -181,6 +182,9 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         extract_images: bool = False,
         images_parser: Optional[BaseBlobParser] = None,
+        on_image_error: Optional[
+            Callable[[Exception, "BaseBlobParser", "Blob"], str]
+        ] = None,
         use_layout: bool = False,
         **pymupdf4llm_kwargs,
     ) -> None:
@@ -199,6 +203,10 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
                 `images_parser` to be set.
             images_parser: Optional image blob parser to process extracted images.
                 Required if `extract_images` is True.
+            on_image_error: A callback function to handle errors during image parsing.
+                Useful for refreshing authentication tokens during long-running
+                extraction tasks. Should accept (exception, parser, blob) and
+                return a string.
             use_layout: Whether to enable PyMuPDF layout extraction when supported by
                 the installed `pymupdf4llm` version.
             **pymupdf4llm_kwargs: Additional keyword arguments to pass directly to the
@@ -235,6 +243,7 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
             pages_delimiter=pages_delimiter,
             extract_images=extract_images,
             images_parser=images_parser,
+            on_image_error=on_image_error,
             use_layout=use_layout,
             **pymupdf4llm_kwargs,
         )

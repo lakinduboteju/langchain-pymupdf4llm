@@ -194,6 +194,27 @@ loader = GenericLoader(
     blob_parser=PyMuPDF4LLMParser(),
 )
 ```
+### Resilient Image Parsing (Token Refresh)
+
+For long-running extraction tasks where authentication tokens for multimodal models might expire, you can use the `on_image_error` callback to refresh credentials and retry without failing the entire document:
+
+```python
+def handle_parsing_error(exception, parser, blob):
+    if "401" in str(exception) or "expired" in str(exception).lower():
+        # Logic to refresh your model's authentication
+        parser.model.refresh_auth_header() 
+        # Retry the parsing and return the content
+        return next(parser.lazy_parse(blob)).page_content
+    # Fallback or re-raise for other errors
+    raise exception
+
+loader = PyMuPDF4LLMLoader(
+    "large_document.pdf",
+    extract_images=True,
+    images_parser=my_llm_parser,
+    on_image_error=handle_parsing_error
+)
+```
 
 ## Development
 
