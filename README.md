@@ -116,6 +116,12 @@ Open the workspace in the devcontainer, then install dependencies manually:
 uv sync --group dev --group test --group lint --group typing
 ```
 
+Install lightweight pre-commit hooks for formatting and hygiene checks:
+
+```bash
+uv run pre-commit install
+```
+
 Common commands are available as Cursor/VS Code tasks:
 
 - `uv sync`
@@ -136,6 +142,7 @@ uv run pytest --cov=src/langchain_pymupdf4llm --cov-report=term-missing --cov-fa
 uv run black --check .
 uv run ruff check .
 uv run mypy .
+uv run pre-commit run --all-files
 ```
 
 The default pytest run disables sockets and skips tests marked `network`. To run
