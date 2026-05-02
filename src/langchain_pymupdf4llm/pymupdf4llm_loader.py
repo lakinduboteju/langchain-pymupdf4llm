@@ -10,7 +10,7 @@ from pathlib import Path, PurePath
 from typing import Literal
 from urllib.parse import urlparse
 
-import requests
+import requests as requests
 from langchain_core.document_loaders import BaseBlobParser, BaseLoader, Blob
 from langchain_core.documents import Document
 

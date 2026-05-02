@@ -13,7 +13,7 @@ from tempfile import TemporaryDirectory
 from types import ModuleType
 from typing import Literal, TypeAlias, cast
 
-import pymupdf
+import pymupdf as pymupdf
 from langchain_core.document_loaders import BaseBlobParser, Blob
 from langchain_core.documents import Document
 
