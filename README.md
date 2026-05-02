@@ -130,19 +130,26 @@ JupyterLab is configured as a foreground task on port `8888`. It does not start 
 Run checks locally:
 
 ```bash
-uv run pytest
+uv run --group test python -m pytest
 uv run black --check .
 uv run ruff check .
 uv run mypy .
 ```
 
+The default pytest run disables sockets and skips tests marked `network`. To run
+network tests explicitly:
+
+```bash
+uv run --group test python -m pytest --force-enable-socket -m network
+```
+
 ## Creating Test Documents
 
-To recreate the example PDF documents from LaTeX:
+To recreate the example PDF documents from LaTeX with deterministic PDF metadata:
 
 ```bash
 cd ./tests/examples
-pdflatex sample_1.tex
+SOURCE_DATE_EPOCH=1704067200 FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode sample_1.tex
 ```
 
 ## Jupyter Notebooks

@@ -11,16 +11,12 @@ from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 
 _DOCS_DIR_PATH = Path(__file__).parents[1] / "examples"
 
+pytestmark = pytest.mark.integration
+
 
 @pytest.mark.parametrize(
     ("mode", "file_path", "expected_output_doc_count", "expected_content_substring"),
     [
-        (
-            "page",
-            "https://people.sc.fsu.edu/~jpeterson/hello_world.pdf",
-            1,
-            "the simplest example of a program one can write",
-        ),
         (
             "single",
             str(_DOCS_DIR_PATH / "sample_1.pdf"),
@@ -36,7 +32,7 @@ def test_pymupdf4llm_loader(
     expected_output_doc_count: int,
     expected_content_substring: str,
 ) -> None:
-    """Test loading PDFs from local paths and a remote URL."""
+    """Test loading PDFs from local paths."""
     loader = PyMuPDF4LLMLoader(
         file_path=file_path,
         mode=mode,  # type: ignore[arg-type]
@@ -50,6 +46,30 @@ def test_pymupdf4llm_loader(
     content = docs[0].page_content
     assert isinstance(content, str)
     assert expected_content_substring in content
+
+    metadata = docs[0].metadata
+    assert isinstance(metadata, dict)
+    assert metadata["source"] == file_path
+
+
+@pytest.mark.network
+def test_pymupdf4llm_loader_remote_url() -> None:
+    """Test loading a PDF from a public URL."""
+    file_path = "https://people.sc.fsu.edu/~jpeterson/hello_world.pdf"
+
+    loader = PyMuPDF4LLMLoader(
+        file_path=file_path,
+        mode="page",
+    )
+
+    doc_generator = loader.lazy_load()
+    assert isinstance(doc_generator, Iterator)
+    docs = list(doc_generator)
+    assert len(docs) == 1
+
+    content = docs[0].page_content
+    assert isinstance(content, str)
+    assert "the simplest example of a program one can write" in content
 
     metadata = docs[0].metadata
     assert isinstance(metadata, dict)

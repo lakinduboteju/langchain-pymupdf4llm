@@ -105,4 +105,8 @@ ignore-var-parameters = true
 ]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --strict-config --durations=5"
+addopts = "--strict-markers --strict-config --disable-socket -m 'not network' --durations=5"
+markers = [
+  "integration: tests that exercise integrated package behavior without public network access",
+  "network: tests that require public network access and must be run explicitly",
+]
