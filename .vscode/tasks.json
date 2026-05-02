@@ -16,6 +16,13 @@
       "problemMatcher": []
     },
     {
+      "label": "coverage",
+      "type": "shell",
+      "command": "uv run pytest --cov=src/langchain_pymupdf4llm --cov-report=term-missing --cov-fail-under=90",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
       "label": "lint",
       "type": "shell",
       "command": "uv run ruff check .",

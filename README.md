@@ -120,6 +120,7 @@ Common commands are available as Cursor/VS Code tasks:
 
 - `uv sync`
 - `test`
+- `coverage`
 - `lint`
 - `format`
 - `typecheck`
@@ -131,6 +132,7 @@ Run checks locally:
 
 ```bash
 uv run --group test python -m pytest
+uv run pytest --cov=src/langchain_pymupdf4llm --cov-report=term-missing --cov-fail-under=90
 uv run black --check .
 uv run ruff check .
 uv run mypy .
