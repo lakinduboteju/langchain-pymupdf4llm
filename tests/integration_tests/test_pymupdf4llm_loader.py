@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
+import requests
 from langchain_core.document_loaders import BaseBlobParser, Blob
 from langchain_core.documents import Document
 
@@ -115,11 +116,11 @@ def test_pymupdf4llm_loader_http_url(monkeypatch: pytest.MonkeyPatch) -> None:
     ) -> _FakeResponse:
         calls.append(_RequestCall(url=url, headers=headers, timeout=timeout))
         return _FakeResponse(
-            status_code=loader_module.requests.codes.ok,
+            status_code=requests.codes.ok,
             content=(_DOCS_DIR_PATH / "sample_1.pdf").read_bytes(),
         )
 
-    monkeypatch.setattr(loader_module.requests, "get", fake_get)
+    monkeypatch.setattr(requests, "get", fake_get)
 
     loader = PyMuPDF4LLMLoader(
         file_path=file_path,
@@ -163,7 +164,7 @@ def test_pymupdf4llm_loader_http_status_error(
         del url, headers, timeout
         return _FakeResponse(status_code=404, content=b"")
 
-    monkeypatch.setattr(loader_module.requests, "get", fake_get)
+    monkeypatch.setattr(requests, "get", fake_get)
 
     with pytest.raises(
         ValueError,
@@ -185,10 +186,11 @@ def test_loader_forwards_parser_options() -> None:
     """Test loader forwards public parser options during initialization."""
     file_path = _DOCS_DIR_PATH / "sample_1.pdf"
     image_parser = _DummyImageParser()
+    auth_value = "test-password"
 
     loader = PyMuPDF4LLMLoader(
         file_path=file_path,
-        password="test-password",
+        password=auth_value,
         mode="single",
         pages_delimiter="<<<PAGE>>>",
         extract_images=True,
@@ -197,7 +199,7 @@ def test_loader_forwards_parser_options() -> None:
         table_strategy="lines",
     )
 
-    assert loader.parser.password == "test-password"
+    assert loader.parser.password == auth_value
     assert loader.parser.mode == "single"
     assert loader.parser.pages_delimiter == "<<<PAGE>>>"
     assert loader.parser.extract_images is True

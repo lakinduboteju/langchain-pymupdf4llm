@@ -9,11 +9,11 @@ from types import SimpleNamespace
 from typing import Literal, cast
 from unittest.mock import Mock
 
+import pymupdf
 import pytest
 from langchain_core.document_loaders import BaseBlobParser, Blob
 from langchain_core.documents import Document
 
-from langchain_pymupdf4llm import pymupdf4llm_parser as parser_module
 from langchain_pymupdf4llm.pymupdf4llm_parser import PyMuPDF4LLMParser
 
 _DOCS_DIR_PATH = Path(__file__).parents[1] / "examples"
@@ -207,10 +207,9 @@ def test_password_authenticates_only_encrypted_documents(
     class FakeDoc:
         """Minimal PDF document shape for parser authentication tests."""
 
-        metadata: dict[str, str] = {}
-
         def __init__(self, *, encrypted: bool) -> None:
             self.is_encrypted = encrypted
+            self.metadata: dict[str, str] = {}
             self.auth_calls: list[str | None] = []
 
         def __len__(self) -> int:
@@ -223,10 +222,11 @@ def test_password_authenticates_only_encrypted_documents(
     fake_to_markdown = Mock(return_value="page markdown\n-----\n\n")
     fake_module = SimpleNamespace(to_markdown=fake_to_markdown)
     monkeypatch.setitem(sys.modules, "pymupdf4llm", fake_module)
-    monkeypatch.setattr(parser_module.pymupdf, "open", Mock(return_value=fake_doc))
+    monkeypatch.setattr(pymupdf, "open", Mock(return_value=fake_doc))
+    auth_value = "test-password"
 
     docs = list(
-        PyMuPDF4LLMParser(password="test-password").lazy_parse(
+        PyMuPDF4LLMParser(password=auth_value).lazy_parse(
             Blob.from_data(b"%PDF-1.7"),
         ),
     )
