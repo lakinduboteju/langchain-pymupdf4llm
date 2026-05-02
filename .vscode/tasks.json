@@ -1,0 +1,51 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "uv sync",
+      "type": "shell",
+      "command": "uv sync --group dev --group test --group lint --group typing",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "test",
+      "type": "shell",
+      "command": "uv run pytest; status=$?; if [ \"$status\" -eq 5 ]; then echo 'No tests collected yet.'; exit 0; fi; exit \"$status\"",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "lint",
+      "type": "shell",
+      "command": "uv run ruff check .",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "format",
+      "type": "shell",
+      "command": "uv run black . && uv run ruff check . --fix",
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "typecheck",
+      "type": "shell",
+      "command": "uv run python -c \"from pathlib import Path; raise SystemExit(0 if any(p.suffix == '.py' and '.venv' not in p.parts for p in Path('.').rglob('*')) else 1)\"; has_py=$?; if [ \"$has_py\" -eq 0 ]; then uv run mypy .; else echo 'No Python files to typecheck yet.'; fi",
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "jupyter",
+      "type": "shell",
+      "command": "uv run jupyter lab --ip 0.0.0.0 --port 8888 --no-browser --IdentityProvider.token='' --ServerApp.password=''",
+      "isBackground": false,
+      "problemMatcher": [],
+      "presentation": {
+        "panel": "dedicated",
+        "reveal": "always"
+      }
+    }
+  ]
+}
