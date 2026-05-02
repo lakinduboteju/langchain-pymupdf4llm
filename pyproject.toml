@@ -1,36 +1,108 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
 name = "langchain-pymupdf4llm"
 version = "0.5.1"
 description = "An integration package connecting PyMuPDF4LLM to LangChain"
-authors = [
-    {name = "Lakindu Boteju",email = "lakinduboteju@gmail.com"}
-]
-license = "AGPL-3.0-only"
 readme = "README.md"
-classifiers = [
-    "License :: OSI Approved :: GNU Affero General Public License v3",
+license = { file = "LICENSE" }
+authors = [
+  { name = "Lakindu Boteju", email = "lakinduboteju@gmail.com" },
 ]
-
-requires-python = "<4.0,>=3.11"
-
+requires-python = ">=3.10.0,<4.0.0"
+classifiers = [
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU Affero General Public License v3",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 dependencies = [
-    "langchain-core>=1.0.0,<2.0.0",
-    "pymupdf4llm>=1.27.2.1,<1.28.0"
+  "langchain-core>=1.0.0,<2.0.0",
+  "pymupdf4llm>=1.27.2.1,<1.28.0",
 ]
 
 [project.urls]
-repository = "https://github.com/lakinduboteju/langchain-pymupdf4llm"
+Repository = "https://github.com/lakinduboteju/langchain-pymupdf4llm"
 
-[tool.poetry.group.test.dependencies]
-pytest = "^8.3.0"
-pytest-socket = "^0.7.0"
-pytest-asyncio = "^1.2.0"
-langchain-tests = "^1.0.0"
+[dependency-groups]
+dev = [
+  "ipykernel>=6.29.0,<7.0.0",
+  "jupyterlab>=4.0.0,<5.0.0",
+]
+test = [
+  "debugpy>=1.8.0,<2.0.0",
+  "langchain-tests>=1.0.0,<2.0.0",
+  "pytest>=8.0.0,<10.0.0",
+  "pytest-asyncio>=1.2.0,<2.0.0",
+  "pytest-socket>=0.7.0,<0.8.0",
+]
+lint = [
+  "black>=25.0.0,<26.0.0",
+  "ruff>=0.13.0,<0.16.0",
+]
+typing = [
+  "mypy>=1.17.0,<2.0.0",
+  "types-requests>=2.32.0,<3.0.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-debugpy = "^1.8.12"
-jupyter = "^1.1.1"
+[tool.hatch.build.targets.wheel]
+packages = ["src/langchain_pymupdf4llm"]
 
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312", "py313"]
+
+[tool.mypy]
+strict = true
+python_version = "3.11"
+warn_unused_configs = true
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+extend-exclude = ["notebooks/*.ipynb"]
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "COM812",
+  "ISC001",
+  "CPY",
+  "FBT001",
+  "FBT002",
+  "FBT003",
+  "FIX",
+  "PLC0415",
+  "PLR0913",
+  "TC002",
+  "TC003",
+  "TD",
+  "TRY004",
+]
+
+[tool.ruff.lint.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+ignore-var-parameters = true
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+  "D",
+  "PLR2004",
+  "S101",
+  "SLF001",
+]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --strict-config --durations=5"
