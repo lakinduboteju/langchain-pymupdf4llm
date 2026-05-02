@@ -7,6 +7,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import pytest
+from langchain_core.document_loaders import BaseBlobParser, Blob
+from langchain_core.documents import Document
 
 from langchain_pymupdf4llm import PyMuPDF4LLMLoader
 from langchain_pymupdf4llm import pymupdf4llm_loader as loader_module
@@ -31,6 +33,15 @@ class _FakeResponse:
 
     status_code: int
     content: bytes
+
+
+class _DummyImageParser(BaseBlobParser):
+    """Small parser used to assert loader image parser forwarding."""
+
+    def lazy_parse(self, blob: Blob) -> Iterator[Document]:
+        """Return deterministic image content."""
+        del blob
+        yield Document(page_content="image text")
 
 
 @pytest.mark.parametrize(
@@ -69,6 +80,25 @@ def test_pymupdf4llm_loader(
     metadata = docs[0].metadata
     assert isinstance(metadata, dict)
     assert metadata["source"] == file_path
+
+
+def test_loader_single_mode_respects_pages_delimiter() -> None:
+    """Test loader single mode joins pages with a custom delimiter."""
+    file_path = str(_DOCS_DIR_PATH / "sample_1.pdf")
+    pages_delimiter = "\n<<<LOADER PAGE BREAK>>>\n"
+
+    loader = PyMuPDF4LLMLoader(
+        file_path=file_path,
+        mode="single",
+        pages_delimiter=pages_delimiter,
+    )
+    docs = list(loader.lazy_load())
+
+    assert len(docs) == 1
+    assert docs[0].page_content.count(pages_delimiter) == 1
+    assert "Row 2, Col 2" in docs[0].page_content
+    assert 'print("Hello, World!")' in docs[0].page_content
+    assert docs[0].metadata["source"] == file_path
 
 
 def test_pymupdf4llm_loader_http_url(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -149,3 +179,28 @@ def test_loader_forwards_use_layout() -> None:
     loader = PyMuPDF4LLMLoader(file_path=file_path, use_layout=True)
 
     assert loader.parser.use_layout is True
+
+
+def test_loader_forwards_parser_options() -> None:
+    """Test loader forwards public parser options during initialization."""
+    file_path = _DOCS_DIR_PATH / "sample_1.pdf"
+    image_parser = _DummyImageParser()
+
+    loader = PyMuPDF4LLMLoader(
+        file_path=file_path,
+        password="test-password",
+        mode="single",
+        pages_delimiter="<<<PAGE>>>",
+        extract_images=True,
+        images_parser=image_parser,
+        use_layout=True,
+        table_strategy="lines",
+    )
+
+    assert loader.parser.password == "test-password"
+    assert loader.parser.mode == "single"
+    assert loader.parser.pages_delimiter == "<<<PAGE>>>"
+    assert loader.parser.extract_images is True
+    assert loader.parser.images_parser is image_parser
+    assert loader.parser.use_layout is True
+    assert loader.parser.pymupdf4llm_kwargs == {"table_strategy": "lines"}
