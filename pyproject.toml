@@ -37,7 +37,6 @@ dev = [
 ]
 test = [
   "debugpy>=1.8.0,<2.0.0",
-  "langchain-tests>=1.0.0,<2.0.0",
   "pytest>=8.0.0,<10.0.0",
   "pytest-asyncio>=1.2.0,<2.0.0",
   "pytest-socket>=0.7.0,<0.8.0",
