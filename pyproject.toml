@@ -37,19 +37,23 @@ dev = [
 ]
 test = [
   "debugpy>=1.8.0,<2.0.0",
-  "langchain-tests>=1.0.0,<2.0.0",
   "pytest>=8.0.0,<10.0.0",
   "pytest-asyncio>=1.2.0,<2.0.0",
+  "pytest-cov>=7.1.0",
   "pytest-socket>=0.7.0,<0.8.0",
 ]
 lint = [
   "black>=25.0.0,<26.0.0",
+  "pre-commit>=4.6.0",
   "ruff>=0.13.0,<0.16.0",
 ]
 typing = [
   "mypy>=1.17.0,<2.0.0",
   "types-requests>=2.32.0,<3.0.0",
 ]
+
+[tool.uv]
+default-groups = ["test"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/langchain_pymupdf4llm"]
@@ -60,8 +64,20 @@ target-version = ["py310", "py311", "py312", "py313"]
 
 [tool.mypy]
 strict = true
-python_version = "3.11"
+python_version = "3.10"
 warn_unused_configs = true
+
+[tool.coverage.run]
+source = ["src/langchain_pymupdf4llm"]
+omit = [
+  ".venv/*",
+  "notebooks/*",
+  "tests/*",
+]
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true
 
 [tool.ruff]
 line-length = 88
@@ -105,4 +121,8 @@ ignore-var-parameters = true
 ]
 
 [tool.pytest.ini_options]
-addopts = "--strict-markers --strict-config --durations=5"
+addopts = "--strict-markers --strict-config --disable-socket -m 'not network' --durations=5"
+markers = [
+  "integration: tests that exercise integrated package behavior without public network access",
+  "network: tests that require public network access and must be run explicitly",
+]

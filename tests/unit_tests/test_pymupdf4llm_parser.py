@@ -9,6 +9,7 @@ from types import SimpleNamespace
 from typing import Literal, cast
 from unittest.mock import Mock
 
+import pymupdf
 import pytest
 from langchain_core.document_loaders import BaseBlobParser, Blob
 from langchain_core.documents import Document
@@ -52,6 +53,41 @@ def test_pymupdf4llm_parser_modes(
     assert metadata["source"] == str(doc_path)
 
 
+def test_page_mode_metadata_includes_page_numbers_and_total_pages() -> None:
+    """Test page mode preserves per-page metadata."""
+    doc_path = _DOCS_DIR_PATH / "sample_1.pdf"
+    docs = list(PyMuPDF4LLMParser(mode="page").lazy_parse(Blob.from_path(doc_path)))
+
+    assert len(docs) == 2
+    assert [doc.metadata["page"] for doc in docs] == [0, 1]
+    assert {doc.metadata["total_pages"] for doc in docs} == {2}
+    assert {doc.metadata["source"] for doc in docs} == {str(doc_path)}
+    assert "Row 2, Col 2" in docs[0].page_content
+    assert 'print("Hello, World!")' in docs[1].page_content
+
+
+def test_single_mode_metadata_and_custom_pages_delimiter() -> None:
+    """Test single mode joins pages with the configured delimiter."""
+    doc_path = _DOCS_DIR_PATH / "sample_1.pdf"
+    pages_delimiter = "\n<<<PAGE BREAK>>>\n"
+
+    docs = list(
+        PyMuPDF4LLMParser(
+            mode="single",
+            pages_delimiter=pages_delimiter,
+        ).lazy_parse(Blob.from_path(doc_path)),
+    )
+
+    assert len(docs) == 1
+    doc = docs[0]
+    assert doc.metadata["total_pages"] == 2
+    assert doc.metadata["source"] == str(doc_path)
+    assert "page" not in doc.metadata
+    assert doc.page_content.count(pages_delimiter) == 1
+    assert "Row 2, Col 2" in doc.page_content
+    assert 'print("Hello, World!")' in doc.page_content
+
+
 def test_invalid_mode() -> None:
     """Test that an invalid mode raises ValueError."""
     with pytest.raises(ValueError, match="mode must be single or page"):
@@ -74,6 +110,22 @@ class DummyParser(BaseBlobParser):
         """Return deterministic image content."""
         del blob
         yield Document(page_content="image text")
+
+
+def test_extract_images_replaces_markdown_images_with_parser_output() -> None:
+    """Test image extraction replaces Markdown image links."""
+    doc_path = _DOCS_DIR_PATH / "sample_1.pdf"
+    parser = PyMuPDF4LLMParser(
+        mode="page",
+        extract_images=True,
+        images_parser=DummyParser(),
+    )
+
+    docs = list(parser.lazy_parse(Blob.from_path(doc_path)))
+
+    assert len(docs) == 2
+    assert "![image text](#)" in docs[1].page_content
+    assert "![](" not in docs[1].page_content
 
 
 @pytest.mark.parametrize(
@@ -136,6 +188,52 @@ def test_valid_pymupdf4llm_kwargs(
     """Test valid PyMuPDF4LLM kwargs do not raise during initialization."""
     kwargs = {valid_kwarg_key: valid_kwarg_value}
     PyMuPDF4LLMParser(**kwargs)  # type: ignore[arg-type]
+
+
+@pytest.mark.parametrize(
+    ("is_encrypted", "expected_auth_calls"),
+    [
+        (False, []),
+        (True, ["test-password"]),
+    ],
+)
+def test_password_authenticates_only_encrypted_documents(
+    is_encrypted: bool,
+    expected_auth_calls: list[str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Test password authentication is only attempted for encrypted PDFs."""
+
+    class FakeDoc:
+        """Minimal PDF document shape for parser authentication tests."""
+
+        def __init__(self, *, encrypted: bool) -> None:
+            self.is_encrypted = encrypted
+            self.metadata: dict[str, str] = {}
+            self.auth_calls: list[str | None] = []
+
+        def __len__(self) -> int:
+            return 1
+
+        def authenticate(self, password: str | None) -> None:
+            self.auth_calls.append(password)
+
+    fake_doc = FakeDoc(encrypted=is_encrypted)
+    fake_to_markdown = Mock(return_value="page markdown\n-----\n\n")
+    fake_module = SimpleNamespace(to_markdown=fake_to_markdown)
+    monkeypatch.setitem(sys.modules, "pymupdf4llm", fake_module)
+    monkeypatch.setattr(pymupdf, "open", Mock(return_value=fake_doc))
+    auth_value = "test-password"
+
+    docs = list(
+        PyMuPDF4LLMParser(password=auth_value).lazy_parse(
+            Blob.from_data(b"%PDF-1.7"),
+        ),
+    )
+
+    assert len(docs) == 1
+    assert docs[0].page_content == "page markdown"
+    assert fake_doc.auth_calls == expected_auth_calls
 
 
 def test_use_layout_is_ignored_when_not_supported(

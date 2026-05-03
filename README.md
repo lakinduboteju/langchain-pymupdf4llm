@@ -3,8 +3,10 @@
 An independent LangChain integration package connecting PyMuPDF4LLM to LangChain
 as a document loader.
 
-[![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://github.com/langchain-ai/langchain)
+[![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://pypi.org/project/langchain-core/)
+[![PyMuPDF4LLM](https://img.shields.io/badge/PyMuPDF4LLM-dependency-blue)](https://pypi.org/project/pymupdf4llm/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](LICENSE)
 
 ## Introduction
 
@@ -116,10 +118,17 @@ Open the workspace in the devcontainer, then install dependencies manually:
 uv sync --group dev --group test --group lint --group typing
 ```
 
+Install lightweight pre-commit hooks for formatting and hygiene checks:
+
+```bash
+uv run pre-commit install
+```
+
 Common commands are available as Cursor/VS Code tasks:
 
 - `uv sync`
 - `test`
+- `coverage`
 - `lint`
 - `format`
 - `typecheck`
@@ -130,19 +139,28 @@ JupyterLab is configured as a foreground task on port `8888`. It does not start 
 Run checks locally:
 
 ```bash
-uv run pytest
+uv run --group test python -m pytest
+uv run pytest --cov=src/langchain_pymupdf4llm --cov-report=term-missing --cov-fail-under=90
 uv run black --check .
 uv run ruff check .
 uv run mypy .
+uv run pre-commit run --all-files
+```
+
+The default pytest run disables sockets and skips tests marked `network`. To run
+network tests explicitly:
+
+```bash
+uv run --group test python -m pytest --force-enable-socket -m network
 ```
 
 ## Creating Test Documents
 
-To recreate the example PDF documents from LaTeX:
+To recreate the example PDF documents from LaTeX with deterministic PDF metadata:
 
 ```bash
 cd ./tests/examples
-pdflatex sample_1.tex
+SOURCE_DATE_EPOCH=1704067200 FORCE_SOURCE_DATE=1 pdflatex -interaction=nonstopmode sample_1.tex
 ```
 
 ## Jupyter Notebooks
