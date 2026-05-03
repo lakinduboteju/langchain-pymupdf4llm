@@ -3,8 +3,10 @@
 An independent LangChain integration package connecting PyMuPDF4LLM to LangChain
 as a document loader.
 
-[![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://github.com/langchain-ai/langchain)
+[![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://pypi.org/project/langchain-core/)
+[![PyMuPDF4LLM](https://img.shields.io/badge/PyMuPDF4LLM-dependency-blue)](https://pypi.org/project/pymupdf4llm/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
+[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](LICENSE)
 
 ## Introduction
 
