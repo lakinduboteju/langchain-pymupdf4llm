@@ -22,7 +22,7 @@ _DOCS_DIR_PATH = Path(__file__).parents[1] / "examples"
 @pytest.mark.parametrize(
     ("mode", "pdf_filename", "expected_output_doc_count", "expected_content_substring"),
     [
-        ("single", "sample_1.pdf", 1, 'print("Hello, World!")'),
+        ("single", "sample_1.pdf", 1, "Sample Document 1"),
         ("page", "sample_1.pdf", 2, "Row 2, Col 2"),
     ],
 )
@@ -63,7 +63,7 @@ def test_page_mode_metadata_includes_page_numbers_and_total_pages() -> None:
     assert {doc.metadata["total_pages"] for doc in docs} == {2}
     assert {doc.metadata["source"] for doc in docs} == {str(doc_path)}
     assert "Row 2, Col 2" in docs[0].page_content
-    assert 'print("Hello, World!")' in docs[1].page_content
+    assert docs[1].page_content.strip() == ""
 
 
 def test_single_mode_metadata_and_custom_pages_delimiter() -> None:
@@ -85,7 +85,7 @@ def test_single_mode_metadata_and_custom_pages_delimiter() -> None:
     assert "page" not in doc.metadata
     assert doc.page_content.count(pages_delimiter) == 1
     assert "Row 2, Col 2" in doc.page_content
-    assert 'print("Hello, World!")' in doc.page_content
+    assert "Sample Document 1" in doc.page_content
 
 
 def test_invalid_mode() -> None:

@@ -118,7 +118,7 @@ class PyMuPDF4LLMLoader(BasePDFLoader):
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         extract_images: bool = False,
         images_parser: BaseBlobParser | None = None,
-        use_layout: bool = False,
+        use_layout: bool = True,
         **pymupdf4llm_kwargs: object,
     ) -> None:
         """Initialize the PDF loader.

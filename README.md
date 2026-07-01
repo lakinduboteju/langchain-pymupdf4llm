@@ -4,9 +4,9 @@ An independent LangChain integration package connecting PyMuPDF4LLM to LangChain
 as a document loader.
 
 [![LangChain v1.0+](https://img.shields.io/badge/LangChain-v1.0+-blue)](https://pypi.org/project/langchain-core/)
-[![PyMuPDF4LLM](https://img.shields.io/badge/PyMuPDF4LLM-dependency-blue)](https://pypi.org/project/pymupdf4llm/)
+[![PyMuPDF4LLM](https://img.shields.io/badge/PyMuPDF4LLM-1.28+-blue)](https://pypi.org/project/pymupdf4llm/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: AGPL-3.0-only](https://img.shields.io/badge/License-AGPL--3.0--only-blue.svg)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange.svg)](LICENSE)
 [![PyPI Downloads](https://static.pepy.tech/badge/langchain-pymupdf4llm/month)](https://pepy.tech/projects/langchain-pymupdf4llm)
 [![Discord](https://img.shields.io/discord/770681584617652264?color=6A7EC2&logo=discord&logoColor=ffffff)](https://artifex.com/discord/artifex?utm_source=github&utm_medium=referral&utm_campaign=pymupdf_github&utm_content=badges&utm_term=discord)
 [![Forum](https://img.shields.io/badge/Forum-ff6600?logo=python&logoColor=ffffff)](https://forum.mupdf.com/c/general/4?utm_source=github&utm_medium=referral&utm_campaign=pymupdf_github&utm_content=badges&utm_term=forum)
@@ -25,6 +25,9 @@ generation workflows.
 PyMuPDF4LLM provides Markdown extraction for standard text, tables, headers,
 lists, code blocks, multi-column pages, images, and vector graphics.
 
+> [!NOTE]
+> Since version 1.28.0 `langchain-pymupdf4llm` uses enhanced layout analysis by default powered by [pymupdf4llm](https://pymupdf.io/4llm/?utm_source=github&utm_medium=referral&utm_campaign=pymupdf_github&utm_content=footer&utm_term=website).
+
 This integration adds LangChain loader and parser APIs, including optional image
 description replacement when an image parser is provided.
 
@@ -32,7 +35,7 @@ description replacement when an image parser is provided.
 
 - Python 3.10 or higher
 - LangChain Core v1.0.0 or higher
-- PyMuPDF4LLM v1.27.2.1 or higher
+- PyMuPDF4LLM v1.28.0 or higher
 
 ## Installation
 
@@ -176,8 +179,7 @@ uv run jupyter lab --ip 0.0.0.0 --port 8888 --no-browser
 ## Licensing
 
 This package depends directly on `pymupdf4llm` / `pymupdf`, which are published
-by Artifex under AGPL/commercial terms. Because this integration wraps that
-stack directly, this repository is distributed under `AGPL-3.0-only`.
+by [Artifex](https://artifex.com?utm_source=github&utm_medium=referral&utm_campaign=pymupdf_github&utm_content=footer&utm_term=website) under AGPL/commercial terms. Because this integration wraps that stack directly, this repository is distributed under `AGPL-3.0-only`.
 
 PyMuPDF4LLM and PyMuPDF are maintained by [Artifex Software, Inc.](https://artifex.com?utm_source=github&utm_medium=referral&utm_campaign=pymupdf_github&utm_content=footer&utm_term=website)
 

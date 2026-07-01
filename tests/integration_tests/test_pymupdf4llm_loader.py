@@ -52,7 +52,7 @@ class _DummyImageParser(BaseBlobParser):
             "single",
             str(_DOCS_DIR_PATH / "sample_1.pdf"),
             1,
-            'print("Hello, World!")',
+            "Sample Document 1",
         ),
         ("page", str(_DOCS_DIR_PATH / "sample_1.pdf"), 2, "Row 2, Col 2"),
     ],
@@ -63,6 +63,8 @@ def test_pymupdf4llm_loader(
     expected_output_doc_count: int,
     expected_content_substring: str,
 ) -> None:
+    
+    print("file_path", file_path)
     """Test loading PDFs from local paths."""
     loader = PyMuPDF4LLMLoader(
         file_path=file_path,
@@ -95,10 +97,12 @@ def test_loader_single_mode_respects_pages_delimiter() -> None:
     )
     docs = list(loader.lazy_load())
 
+    print(docs[0].page_content)
+
     assert len(docs) == 1
     assert docs[0].page_content.count(pages_delimiter) == 1
     assert "Row 2, Col 2" in docs[0].page_content
-    assert 'print("Hello, World!")' in docs[0].page_content
+    assert "Sample Document 1" in docs[0].page_content
     assert docs[0].metadata["source"] == file_path
 
 

@@ -121,7 +121,7 @@ class PyMuPDF4LLMParser(BaseBlobParser):
         mode: Literal["single", "page"] = "page",
         pages_delimiter: str = _DEFAULT_PAGES_DELIMITER,
         images_parser: BaseBlobParser | None = None,
-        use_layout: bool = False,
+        use_layout: bool = True,
         **pymupdf4llm_kwargs: object,
     ) -> None:
         """Initialize a parser that extracts PDF content as Markdown.
